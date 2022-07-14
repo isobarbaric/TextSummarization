@@ -1,16 +1,14 @@
 
+from utility import Matrix
 from nltk import word_tokenize, sent_tokenize
 from nltk.corpus import stopwords
-import string
-
 from ordered_set import OrderedSet
 
-from matrix import Matrix
+import string
 
-class Text:
+class TextSummarizer:
 
     class Node:    
-        # initialize all words first, then add reference wherever necessary
         def __init__(self, word):
             self.word = word
             self.incoming = OrderedSet()
@@ -30,20 +28,26 @@ class Text:
 
     unwanted_snippets = ["'s"]
 
-    def __init__(self, content):
+    def __init__(self):
+        pass
+
+    def summarize(self, content, n=3):
         self.content = content
         
         # method calls
-        self.extract_words()
-        self.build_graph()
-        self.build_vector()
-        self.iterate()
+        self.__extract_words()
+        self.__build_graph()
+        self.__build_vector()
+        self.__iterate()
+        self.score_sentences()
 
-        # self.build_vector()
-        # self.score_sentences()
+        summary = ''
+        for i in range(min(n, len(self.scored_sentences)-1)):
+            summary += self.scored_sentences[i][1] + ' '
+        return summary[:-1]
 
     # lowercase, remove stop words, extract unique words
-    def extract_words(self):
+    def __extract_words(self):
         self.sentences = sent_tokenize(self.content)
         self.words = []
 
@@ -51,7 +55,7 @@ class Text:
             self.words.append([])
             for word in word_tokenize(sentence):
                 revised = word.lower()
-                if revised in stopwords.words('english') or revised in string.punctuation or revised in Text.unwanted_snippets:
+                if revised in stopwords.words('english') or revised in string.punctuation or revised in TextSummarizer.unwanted_snippets:
                     continue
                 self.words[-1].append(revised)
 
@@ -62,12 +66,12 @@ class Text:
         self.unique_words = list(self.unique_words)
         self.N = len(self.unique_words)
 
-    def build_graph(self, window_size=4):
+    def __build_graph(self, window_size=4):
         self.graph = dict()
 
         # initialize all words
         for word in self.unique_words:
-            self.graph[word] = Text.Node(word)
+            self.graph[word] = TextSummarizer.Node(word)
 
         # set ingoing and outgoing words
         self.windows = []
@@ -91,12 +95,10 @@ class Text:
         assert len(self.graph) == len(set(self.graph))
 
         for word, current_node in self.graph.items():
-            # print(word, current_node)
             current_node.outgoing = list(current_node.outgoing)
             current_node.incoming = list(current_node.incoming)        
-        # print(self.graph)
 
-    def build_vector(self):
+    def __build_vector(self):
         self.vector = [['N/A']]
 
         for word in self.graph:
@@ -107,8 +109,6 @@ class Text:
             for _ in range(len(self.graph)):
                 current_row.append(0)
             self.vector.append(current_row)
-
-        # column of word in graph is = self.unique_words.find(word) + 1
 
         for i in range(len(self.unique_words)):
             vector_col = i+1
@@ -125,7 +125,6 @@ class Text:
 
                 self.vector[vector_row][vector_col] = 1/len(adjacency_list)    
 
-        # reduction to matrix
         self.matrix = []
         for row in self.vector:
             # skip the first row
@@ -133,48 +132,33 @@ class Text:
                 continue
             self.matrix.append(row[1:])
         self.matrix = Matrix(self.matrix)
-        # print(self.matrix)
 
-    def iterate(self, num_iter=100, d=0.85):
-        self.d = d
-
-        def eval(w):
-            return (1-self.d)/self.N + w*self.d
-
+    def __iterate(self, num_iter=100, d=0.85):
         mul = []
         for i in range(len(self.unique_words)):
             mul.append([1])
 
         other = Matrix(mul) 
+        for _ in range(num_iter):
+            other = (1-d)/self.N + d * (self.matrix * other)
 
-        for _ in range(10):
-            other = (1-self.d)/self.N + self.d * (self.matrix * other)
-            print(_)
-            print(other)
-            print()
-        
-        # print(other)
+        self.weights = dict()
+        for i in range(len(other.grid)):
+            self.weights[self.unique_words[i]] = other.grid[i][0]
+    
+        self.weights = dict(sorted(self.weights.items(), key=lambda item: item[1]))
+        print(self.weights)
 
-    #  def score_sentences(self):
-    #     ranker = TextRank(self.unique_words)
-    #     ranker.tabulate()
-    #     self.weights = ranker.scores
-    #     self.scored_sentences = []        
-    #     for sentence in self.sentences:
-    #         current_score = 0
-    #         for word in sentence:
-    #             if word in self.weights:
-    #                 current_score += self.weights[word]
-    #         self.score_sentences.append([current_score, sentence])
-    #     self.scored_sentences.sort(reverse=True)
-
-    def summarize(self, n=3):
-        summary = ''
-        for i in range(min(n, len(self.score_sentences)-1)):
-            summary += self.scored_sentences[i][1]
-        return summary
-
-a = Text("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.")
-
-# print(a.vector)
-# summary = a.summarize()
+    def score_sentences(self):
+        self.scored_sentences = []        
+        cnt = 0
+        for parsed_sent in self.words:
+            # print(parsed_sent)
+            current_score = 0
+            for word in parsed_sent:
+                print(word)
+                current_score += self.weights[word]
+            self.scored_sentences.append([current_score, self.sentences[cnt]])
+            cnt += 1
+        self.scored_sentences.sort(reverse=True)
+        print(self.scored_sentences)

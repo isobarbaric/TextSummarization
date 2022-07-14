@@ -1,6 +1,20 @@
 
-class Matrix:
+from gtts import gTTS
+from playsound import playsound
+import os
+  
+class Reader:
+
+    def __init__(self):
+        pass
     
+    def read(self, text):
+        speech_audio = gTTS(text = text, lang = 'en', slow = False)
+        speech_audio.save('text-spoken.mp3')
+        playsound('text-spoken.mp3')
+        os.remove('text-spoken.mp3')
+
+class Matrix:
     def __init__(self, grid):
         self.grid = grid
     
@@ -49,22 +63,12 @@ class Matrix:
                         current_sum += row[i]*col[i]
                     results[-1].append(current_sum)
             return Matrix(results)
-  
+
     def __rmul__(self, other):
         return self.__mul__(other)
 
     def __repr__(self):
         return str(self.grid)
 
-# x = Matrix([[0, 0, 0, 0],
-#      [0, 0, 0, 0],
-#      [1, 0.5, 0, 0],
-#      [0, 0.5, 0, 0]])
-
-# y = Matrix([[1], [1], [1], [1]])
-
-# print(0.2 + y)
-
-# print(x * y)
-
-# print(x + y)
+# a = Reader()
+# a.read("lorem ipsum lorem ipsum")
