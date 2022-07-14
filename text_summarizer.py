@@ -147,18 +147,16 @@ class TextSummarizer:
             self.weights[self.unique_words[i]] = other.grid[i][0]
     
         self.weights = dict(sorted(self.weights.items(), key=lambda item: item[1]))
-        print(self.weights)
+        # print(self.weights)
 
     def score_sentences(self):
         self.scored_sentences = []        
         cnt = 0
         for parsed_sent in self.words:
-            # print(parsed_sent)
             current_score = 0
             for word in parsed_sent:
-                print(word)
                 current_score += self.weights[word]
             self.scored_sentences.append([current_score, self.sentences[cnt]])
             cnt += 1
         self.scored_sentences.sort(reverse=True)
-        print(self.scored_sentences)
+        # print(self.scored_sentences)

@@ -2,6 +2,7 @@
 from gtts import gTTS
 from playsound import playsound
 import os
+# import atexit
   
 class Reader:
 
@@ -69,6 +70,3 @@ class Matrix:
 
     def __repr__(self):
         return str(self.grid)
-
-# a = Reader()
-# a.read("lorem ipsum lorem ipsum")
