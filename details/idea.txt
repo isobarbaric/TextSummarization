@@ -1,0 +1,23 @@
+to-do:
+1. have a flask server running with your python file
+2. box to input text
+3. nlp summarizer (there's prob ml models out there) try not to use libraries since it detracts from the entire thing
+you want to build your own even if its not as op
+4. google cloud api that converts text to speech
+5. display on web
+
+done:
+4. google cloud api that converts text to speech
+
+steps for summarization:
+- split text into sentences, and sentences into words
+- track unique set of words (after cleaning) extracted from the text
+- use TextRank to generate weights for these words
+    - probably the hardest step
+- for each sentence, give it a score using the weights determined for each unique word
+- sort these sentences in descending order and take the first 'k' sentences in your summary :)
+
+misc.:
+- bag of words?
+- use wikipedia to test data cleaning
+- simplify verbose for loops with comprehensions
