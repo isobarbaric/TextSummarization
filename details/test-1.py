@@ -3,7 +3,7 @@ import nltk
 from nltk.corpus import stopwords
 
 words = []
-
+{}
 # convert paragraphs to sentences and also tokenize them 
 def convert_para_to_sentences(text: str):
     return text.lower().replace('.', '').split(' ')
