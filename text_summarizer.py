@@ -39,7 +39,7 @@ class TextSummarizer:
         self.__build_graph()
         self.__build_vector()
         self.__iterate()
-        self.score_sentences()
+        self.__score_sentences()
 
         summary = ''
         for i in range(min(n, len(self.scored_sentences)-1)):
@@ -149,7 +149,7 @@ class TextSummarizer:
         self.weights = dict(sorted(self.weights.items(), key=lambda item: item[1]))
         # print(self.weights)
 
-    def score_sentences(self):
+    def __score_sentences(self):
         self.scored_sentences = []        
         cnt = 0
         for parsed_sent in self.words:

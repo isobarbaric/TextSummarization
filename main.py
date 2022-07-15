@@ -1,11 +1,35 @@
 
+from flask import Flask, redirect, request, url_for, render_template
 from text_summarizer import TextSummarizer
 from utility import Reader
 
-a = TextSummarizer()
-b = Reader()
+app = Flask(__name__)
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+app.jinja_env.trim_blocks = True
+app.jinja_env.lstrip_blocks = True
 
-summarized = a.summarize("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.")
+summarizer = TextSummarizer()
+music = Reader()
 
-print(summarized)
-b.read(summarized)
+# add a counter for number of lines wanted in sentence 
+@app.route('/')
+def home():
+    return render_template("base.html")
+
+@app.route('/summary/', methods=['GET', 'POST'])
+def serve_summary():
+    content = str(request.form.get('input-text'))
+    # print(content)
+    # if len(content) == 0:
+    #     return redirect(url_for('home'))
+
+    summarized_text = summarizer.summarize(content)
+    try:
+        music.save(summarized_text)
+    except AssertionError:
+        return redirect(url_for('home'))
+
+    return render_template("summary.html", summary = summarized_text)
+
+if __name__ == "__main__":
+    app.run(debug=True)

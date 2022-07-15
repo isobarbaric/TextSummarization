@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Text Summarizer</title>
+        <!-- css -->
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css')}}" />
+        <!-- font -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <header class='container'>
+            <h3>Text Summarizer!</h3>
+        </header>
+        <div id='content'>
+            <div id='left'>
+                <h4> Text: </h3>
+                <form action="{{ url_for('serve_summary') }}" method="POST" enctype="multipart/form-data">
+                    <textarea name='input-text' id='input' rows="20" cols="70" placeholder='Paste your content here!'></textarea>
+                    <input type="submit">
+                </form>    
+            </div>
+            <div id='right'>
+                <h4> Summary: </h3>
+                <textarea id='summary' rows='12' cols='70' placeholder='Your summary will appear here!' readonly></textarea>
+                <h4 style='margin-top: 4em'> Text-to-Speech: </h4>
+                <h5 style='font-weight: normal'> A narration of the summary generated will appear here once you submit your text! <h5>
+            </div>
+        </div>
+        <footer class='container-fluid'>
+            Powered using NLP | by Krish Shah
+        </footer>
+    </body>
+</html>

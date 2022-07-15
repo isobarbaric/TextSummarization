@@ -9,11 +9,11 @@ class Reader:
     def __init__(self):
         pass
     
-    def read(self, text):
+    def save(self, text):
         speech_audio = gTTS(text = text, lang = 'en', slow = False)
-        speech_audio.save('text-spoken.mp3')
-        playsound('text-spoken.mp3')
-        os.remove('text-spoken.mp3')
+        speech_audio.save('static/text-spoken.mp3')
+        # playsound('text-spoken.mp3')
+        # os.remove('text-spoken.mp3')
 
 class Matrix:
     def __init__(self, grid):
