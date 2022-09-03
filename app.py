@@ -1,29 +1,35 @@
 
 from flask import Flask, redirect, request, url_for, render_template
+from text_summarizer import TextSummarizer
+from utility import Reader
 
-# app configuration
 app = Flask(__name__)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.jinja_env.trim_blocks = True
 app.jinja_env.lstrip_blocks = True
 
-@app.route("/")
+summarizer = TextSummarizer()
+music = Reader()
+
+# add a counter for number of lines wanted in sentence 
+@app.route('/')
 def home():
-    return render_template('index.html')
+    return render_template("base.html")
 
-# @app.route('/', methods=['GET', 'POST'])
-# def home():
-#     return render_template("index.html")
+@app.route('/summary/', methods=['GET', 'POST'])
+def serve_summary():
+    content = str(request.form.get('input-text'))
+    # print(content)
+    # if len(content) == 0:
+    #     return redirect(url_for('home'))
 
-# @app.route('/<word>/')
-# def definition(word):
-#     current_word = Word(word)
-#     if current_word.meanings == 404:
-#         return render_template('error.html')
-#     else:
-#         return render_template('result.html', search_query = current_word)
+    try:
+        summarized_text = summarizer.summarize(content)
+        music.save(summarized_text)
+    except Exception:
+        return redirect(url_for('home'))
 
-# running the app
+    return render_template("summary.html", summary = summarized_text)
+
 if __name__ == "__main__":
-    app.run(debug = True)
-
+    app.run(debug=True)

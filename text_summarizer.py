@@ -8,7 +8,7 @@ import string
 
 class TextSummarizer:
 
-    class Node:    
+    class Node:
         def __init__(self, word):
             self.word = word
             self.incoming = OrderedSet()
@@ -33,7 +33,7 @@ class TextSummarizer:
 
     def summarize(self, content, n=3):
         self.content = content
-        
+
         # method calls
         self.__extract_words()
         self.__build_graph()
@@ -159,4 +159,4 @@ class TextSummarizer:
             self.scored_sentences.append([current_score, self.sentences[cnt]])
             cnt += 1
         self.scored_sentences.sort(reverse=True)
-        # print(self.scored_sentences)
+        print(self.scored_sentences)
